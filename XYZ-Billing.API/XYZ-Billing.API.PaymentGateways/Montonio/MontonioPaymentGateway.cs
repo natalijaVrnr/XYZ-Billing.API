@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using XYZ.Billing.API.PaymentGateways.Dtos;
 
-namespace XYZ.Billing.API.PaymentGateways.Stripe;
+namespace XYZ.Billing.API.PaymentGateways.Montonio;
 
-public class StripePaymentGateway : PaymentGateway
+internal class MontonioPaymentGateway : PaymentGateway
 {
     public override Task<PaymentStatus> GetPaymentStatusFromGatewayAsync(PaymentRequest request, CancellationToken cancellationToken = default)
     {

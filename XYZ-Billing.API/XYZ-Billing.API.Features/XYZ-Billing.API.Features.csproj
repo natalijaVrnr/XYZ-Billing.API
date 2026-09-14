@@ -2,4 +2,7 @@
 	<PropertyGroup>
 		<RootNamespace>XYZ.Billing.API.Features</RootNamespace>
 	</PropertyGroup>
+	<ItemGroup>
+	  <PackageReference Include="Carter" />
+	</ItemGroup>
 </Project>
