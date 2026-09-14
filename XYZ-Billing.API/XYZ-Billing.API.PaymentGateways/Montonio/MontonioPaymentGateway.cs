@@ -7,12 +7,7 @@ namespace XYZ.Billing.API.PaymentGateways.Montonio;
 
 internal sealed class MontonioPaymentGateway : IPaymentGateway
 {
-    public Task<PaymentStatus> GetPaymentStatusAsync(PaymentRequest request, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<PaymentResult> ProcessPaymentAsync(PaymentRequest request, CancellationToken cancellationToken = default)
+    public async Task ProcessPaymentAsync(PaymentDto request, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

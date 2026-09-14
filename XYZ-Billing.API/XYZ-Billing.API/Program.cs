@@ -16,6 +16,8 @@ builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration);
 });
 
+builder.Services.AddCarter();
+
 var app = builder.Build();
 
 app.UseExceptionHandler();

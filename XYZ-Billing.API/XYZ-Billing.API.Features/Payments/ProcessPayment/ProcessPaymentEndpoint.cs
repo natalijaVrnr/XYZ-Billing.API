@@ -10,6 +10,7 @@ internal class ProcessPaymentEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-       
+        // we can create a separate request model later if needed, but for now we can use the gateway's PaymentDto model
+
     }
 }

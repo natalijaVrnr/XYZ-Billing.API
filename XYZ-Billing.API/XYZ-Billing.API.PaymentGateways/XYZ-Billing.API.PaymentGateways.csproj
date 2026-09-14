@@ -7,5 +7,7 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\XYZ-Billing.API.Cache\XYZ-Billing.API.Cache.csproj" />
+	  <ProjectReference Include="..\XYZ-Billing.API.Domain\XYZ-Billing.API.Domain.csproj" />
+	  <ProjectReference Include="..\XYZ-Billing.API.Persistence\XYZ-Billing.API.Persistence.csproj" />
 	</ItemGroup>
 </Project>

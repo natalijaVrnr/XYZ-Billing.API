@@ -1,57 +1,66 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using XYZ.Billing.API.Domain.Enums;
+using XYZ.Billing.API.Domain.Models;
 using XYZ.Billing.API.PaymentGateways.Dtos;
+using XYZ.Billing.API.Persistence;
 using XYZ_Billing.API.Cache;
+using static XYZ_Billing.API.Cache.CacheConstants.Payment;
 
 namespace XYZ.Billing.API.PaymentGateways;
 
-public sealed class PaymentService(IServiceProvider serviceProvider, IPaymentIdempotencyGuard guard) : IPaymentService
+public sealed class PaymentService(
+    IServiceProvider serviceProvider, 
+    IPaymentIdempotencyGuard guard,
+    DatabaseContext dbContext) : IPaymentService
 {
-    public async Task<PaymentStatus> GetStatusAsync(
-        PaymentRequest request,
+    public async Task<PaymentStatus> ProcessPaymentAsync(
+        PaymentDto paymentDto,
         CancellationToken cancellationToken = default)
     {
-        var gateway = ResolveGateway(request.GatewayId);
+        var gateway = ResolveGateway(paymentDto.GatewayId);
 
-        var (isClaimed, cachedStatus) = await guard.TryStartPaymentAsync(
-            request.OrderId, 
-            TimeSpan.FromSeconds(CacheConstants.Payment.InProgressTtlSeconds));
+        var paymentStatus = await GetPaymentStatusAsync(paymentDto.OrderNumber, cancellationToken);
 
-        if (isClaimed)
+        if (paymentStatus == PaymentStatus.NotStarted)
         {
-            // TODO - create a custom exception type for this scenario
-            throw new Exception("Payment is already in progress for this order.");
+            await gateway.ProcessPaymentAsync(paymentDto, cancellationToken);
+            // TODO - write to db
+            // TODO - remove order number from cache
+
         }
 
-        // Gateway-specific API call
-        var status = await gateway.GetPaymentStatusAsync(
-            request,
-            cancellationToken);
-
-        // TODO - add checks on status retrieved from gateway
-        // TODO - cache the status for future requests
-
-        return status;
+        return paymentStatus;
     }
 
-    public async Task<PaymentResult> ProcessPaymentAsync(
-        PaymentRequest request,
-        CancellationToken cancellationToken = default)
+    private async Task<PaymentStatus> GetPaymentStatusAsync(string orderNumber, CancellationToken cancellationToken)
     {
-        var gateway = ResolveGateway(request.GatewayId);
+        var isClaimed = await guard.TryStartPaymentAsync(
+            orderNumber,
+            TimeSpan.FromSeconds(CacheConstants.Payment.InProgressTtlSeconds));
 
-        var status = await gateway.GetPaymentStatusAsync(request, cancellationToken);
+        if (!isClaimed)
+        {
+            // Payment has already been claimed by another process
+            return PaymentStatus.InProgress;
 
-        // TODO - check the status and decide whether to proceed with the payment or return an error
+        }
 
-        // Gateway-specific API call
-        var result = await gateway.ProcessPaymentAsync(
-            request,
+        // Check the db to confirm if the payment has already been processed and short circuit if it has
+        var existingPayment = await dbContext.Payments.SingleOrDefaultAsync(
+            p => p.OrderNumber == orderNumber,
             cancellationToken);
 
-        return result;
+        if (existingPayment != null)
+        {
+            // Payment has already been processed
+            return PaymentStatus.Succeeded;
+        }
+
+        return PaymentStatus.NotStarted;
     }
 
     private IPaymentGateway ResolveGateway(PaymentGatewayType gatewayType)

@@ -5,4 +5,7 @@
 	<ItemGroup>
 	  <PackageReference Include="Carter" />
 	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\XYZ-Billing.API.PaymentGateways\XYZ-Billing.API.PaymentGateways.csproj" />
+	</ItemGroup>
 </Project>
