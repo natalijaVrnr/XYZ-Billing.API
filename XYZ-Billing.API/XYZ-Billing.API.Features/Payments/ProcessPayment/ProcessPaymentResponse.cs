@@ -4,6 +4,9 @@ using System.Text;
 
 namespace XYZ.Billing.API.Features.Payments.ProcessPayment;
 
-internal class ProcessPaymentResponse
-{
-}
+internal record ProcessPaymentResponse(
+    string OrderNumber,
+    decimal Amount,
+    DateTime Timestamp,
+    string PaymentId
+);

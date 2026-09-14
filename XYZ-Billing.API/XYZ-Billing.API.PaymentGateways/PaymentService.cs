@@ -17,7 +17,7 @@ public sealed class PaymentService(
     IPaymentIdempotencyGuard guard,
     DatabaseContext dbContext) : IPaymentService
 {
-    public async Task<PaymentStatus> ProcessPaymentAsync(
+    public async Task<(PaymentStatus status, PaymentConfirmationDto? confirmationDto)> ProcessPaymentAsync(
         PaymentDto paymentDto,
         CancellationToken cancellationToken = default)
     {
@@ -30,10 +30,10 @@ public sealed class PaymentService(
             await gateway.ProcessPaymentAsync(paymentDto, cancellationToken);
             // TODO - write to db
             // TODO - remove order number from cache
-
+            return (PaymentStatus.Succeeded, new PaymentConfirmationDto(DateTime.UtcNow, "sample-payment-id"));
         }
 
-        return paymentStatus;
+        return (paymentStatus, null);
     }
 
     private async Task<PaymentStatus> GetPaymentStatusAsync(string orderNumber, CancellationToken cancellationToken)

@@ -6,7 +6,6 @@
   </Folder>
   <Project Path="XYZ-Billing.API.Cache/XYZ-Billing.API.Cache.csproj" Id="ca3dd40f-e43c-4fc2-999a-971f24e40597" />
   <Project Path="XYZ-Billing.API.Domain/XYZ-Billing.API.Domain.csproj" Id="b80bd862-54ac-4a39-944e-a41aae602be4" />
-  <Project Path="XYZ-Billing.API.Exceptions/XYZ-Billing.API.Exceptions.csproj" Id="ebfe50e3-3cc4-4298-a82a-b8528e123923" />
   <Project Path="XYZ-Billing.API.Features/XYZ-Billing.API.Features.csproj" Id="95c6fa3c-7348-45ee-bf4d-4304d766f50d" />
   <Project Path="XYZ-Billing.API.PaymentGateways/XYZ-Billing.API.PaymentGateways.csproj" Id="22289761-e952-4e9e-a02a-27de9ca133b9" />
   <Project Path="XYZ-Billing.API.Persistence/XYZ-Billing.API.Persistence.csproj" Id="1874ff43-f5ae-4c93-ac04-66faa733162a" />
