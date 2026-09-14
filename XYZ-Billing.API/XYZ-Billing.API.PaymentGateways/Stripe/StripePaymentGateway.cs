@@ -5,14 +5,14 @@ using XYZ.Billing.API.PaymentGateways.Dtos;
 
 namespace XYZ.Billing.API.PaymentGateways.Stripe;
 
-public class StripePaymentGateway : PaymentGateway
+internal sealed class StripePaymentGateway : IPaymentGateway
 {
-    public override Task<PaymentStatus> GetPaymentStatusFromGatewayAsync(PaymentRequest request, CancellationToken cancellationToken = default)
+    public Task<PaymentStatus> GetPaymentStatusAsync(PaymentRequest request, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public override Task<PaymentResult> SendPaymentToGatewayAsync(PaymentRequest request, CancellationToken cancellationToken = default)
+    public Task<PaymentResult> ProcessPaymentAsync(PaymentRequest request, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

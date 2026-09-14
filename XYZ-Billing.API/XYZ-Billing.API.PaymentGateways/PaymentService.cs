@@ -1,21 +1,21 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using XYZ.Billing.API.PaymentGateways.Dtos;
 
 namespace XYZ.Billing.API.PaymentGateways;
 
-public abstract class PaymentGateway
+public sealed class PaymentService(IServiceProvider serviceProvider) : IPaymentService
 {
-    public abstract Task<PaymentStatus> GetPaymentStatusFromGatewayAsync(PaymentRequest request, CancellationToken cancellationToken = default);
-    public abstract Task<PaymentResult> SendPaymentToGatewayAsync(PaymentRequest request, CancellationToken cancellationToken = default);
-
     public async Task<PaymentStatus> GetStatusAsync(
         PaymentRequest request,
         CancellationToken cancellationToken = default)
     {
+        var gateway = ResolveGateway(request.GatewayId);
+
         // Gateway-specific API call
-        var status = await GetPaymentStatusFromGatewayAsync(
+        var status = await gateway.GetPaymentStatusAsync(
             request,
             cancellationToken);
 
@@ -29,15 +29,22 @@ public abstract class PaymentGateway
         PaymentRequest request,
         CancellationToken cancellationToken = default)
     {
-        var status = await GetStatusAsync(request, cancellationToken);
+        var gateway = ResolveGateway(request.GatewayId);
+
+        var status = await gateway.GetPaymentStatusAsync(request, cancellationToken);
 
         // TODO - check the status and decide whether to proceed with the payment or return an error
 
         // Gateway-specific API call
-        var result = await SendPaymentToGatewayAsync(
+        var result = await gateway.ProcessPaymentAsync(
             request,
             cancellationToken);
         return result;
     }
 
+    private IPaymentGateway ResolveGateway(PaymentGatewayType gatewayType)
+    {
+        return serviceProvider.GetRequiredKeyedService<IPaymentGateway>(gatewayType.ToString()) 
+            ?? throw new InvalidOperationException($"No payment gateway found for type: {gatewayType}");
+    }
 }
