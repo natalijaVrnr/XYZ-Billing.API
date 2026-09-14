@@ -3,10 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using XYZ.Billing.API.PaymentGateways.Dtos;
+using XYZ_Billing.API.Cache;
 
 namespace XYZ.Billing.API.PaymentGateways;
 
-public sealed class PaymentService(IServiceProvider serviceProvider) : IPaymentService
+public sealed class PaymentService(IServiceProvider serviceProvider, IPaymentIdempotencyGuard guard) : IPaymentService
 {
     public async Task<PaymentStatus> GetStatusAsync(
         PaymentRequest request,
@@ -14,13 +15,23 @@ public sealed class PaymentService(IServiceProvider serviceProvider) : IPaymentS
     {
         var gateway = ResolveGateway(request.GatewayId);
 
+        var (isClaimed, cachedStatus) = await guard.TryStartPaymentAsync(
+            request.OrderId, 
+            TimeSpan.FromSeconds(CacheConstants.Payment.InProgressTtlSeconds));
+
+        if (isClaimed)
+        {
+            // TODO - create a custom exception type for this scenario
+            throw new Exception("Payment is already in progress for this order.");
+        }
+
         // Gateway-specific API call
         var status = await gateway.GetPaymentStatusAsync(
             request,
             cancellationToken);
 
-        // TODO - before sending the payment request check cache to see if another payment has already been started
-        // TODO - if so, return the status as "Payment already in progress" or similar
+        // TODO - add checks on status retrieved from gateway
+        // TODO - cache the status for future requests
 
         return status;
     }
@@ -39,6 +50,7 @@ public sealed class PaymentService(IServiceProvider serviceProvider) : IPaymentS
         var result = await gateway.ProcessPaymentAsync(
             request,
             cancellationToken);
+
         return result;
     }
 

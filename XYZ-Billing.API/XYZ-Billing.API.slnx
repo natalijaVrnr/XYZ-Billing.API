@@ -4,6 +4,7 @@
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
   </Folder>
+  <Project Path="XYZ-Billing.API.Cache/XYZ-Billing.API.Cache.csproj" Id="ca3dd40f-e43c-4fc2-999a-971f24e40597" />
   <Project Path="XYZ-Billing.API.Features/XYZ-Billing.API.Features.csproj" Id="95c6fa3c-7348-45ee-bf4d-4304d766f50d" />
   <Project Path="XYZ-Billing.API.PaymentGateways/XYZ-Billing.API.PaymentGateways.csproj" Id="22289761-e952-4e9e-a02a-27de9ca133b9" />
   <Project Path="XYZ-Billing.API/XYZ-Billing.API.csproj" />

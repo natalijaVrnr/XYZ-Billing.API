@@ -4,7 +4,7 @@ using System.Text;
 
 namespace XYZ.Billing.API.PaymentGateways.Dtos;
 
-public class PaymentRequest
-{
-    public PaymentGatewayType GatewayId { get; set; }
-}
+public sealed record PaymentRequest(
+    string OrderId,
+    PaymentGatewayType GatewayId
+);
