@@ -11,6 +11,36 @@ internal class PaymentsConfiguration : IEntityTypeConfiguration<Payment>
 {
     public void Configure(EntityTypeBuilder<Payment> builder)
     {
-        throw new NotImplementedException();
+        builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.OrderNumber)
+            .HasMaxLength(17);
+
+        builder.HasIndex(x => x.OrderNumber)
+            .IsUnique();
+
+        builder.Property(x => x.UserId)
+            .IsRequired();
+
+        builder.Property(x => x.Amount)
+            .HasPrecision(18, 2)
+            .IsRequired();
+
+        // currency code will always be 3 characters
+        builder.Property(x => x.Currency)
+            .HasMaxLength(3)
+            .IsRequired();
+
+        builder.Property(x => x.GatewayId)
+            .HasMaxLength(50)
+            .IsRequired();
+
+        builder.Property(x => x.Description)
+            .HasMaxLength(300)
+            .IsRequired(false);
+
+        builder.Property(x => x.CreatedOn)
+            .HasDefaultValueSql("GETUTCDATE()")
+            .ValueGeneratedOnAdd();
     }
 }

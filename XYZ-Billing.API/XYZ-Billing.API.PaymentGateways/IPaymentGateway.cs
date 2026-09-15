@@ -7,5 +7,5 @@ namespace XYZ.Billing.API.PaymentGateways;
 
 public interface IPaymentGateway
 {
-    Task ProcessPaymentAsync(PaymentDto request, CancellationToken cancellationToken = default);
+    Task<PaymentConfirmationResponse> ProcessPaymentAsync(PaymentCreationDto request);
 }

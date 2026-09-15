@@ -2,20 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using XYZ.Billing.API.Domain.Enums;
 
 namespace XYZ.Billing.API.PaymentGateways.Dtos;
 
-public record PaymentDto(
-    [Required]
+public record PaymentCreationDto(
     string OrderNumber,
-    [Required]
     string UserId,
-    [Required]
     decimal Amount,
-    [Required]
     string Currency,
-    [Required]
-    PaymentGatewayType GatewayId,
+    string GatewayId,
     string? Description = null
 );

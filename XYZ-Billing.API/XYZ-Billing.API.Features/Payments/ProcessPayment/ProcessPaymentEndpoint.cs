@@ -15,8 +15,8 @@ internal class ProcessPaymentEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        // we can create a separate request model later if needed, but for now we can use the gateway's PaymentDto model
-        app.MapPost("/api/payments/process", async (PaymentDto paymentDto, IPaymentService paymentService) =>
+        // no cancellation token here - we dont want to cancel payment midway through if the client disconnects
+        app.MapPost("/api/payments/process", async (PaymentCreationDto paymentDto, IPaymentService paymentService) =>
         {
             var result = await paymentService.ProcessPaymentAsync(paymentDto);
 

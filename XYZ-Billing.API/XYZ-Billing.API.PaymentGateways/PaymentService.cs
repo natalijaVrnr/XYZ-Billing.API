@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using XYZ.Billing.API.Domain.Enums;
 using XYZ.Billing.API.Domain.Models;
 using XYZ.Billing.API.PaymentGateways.Dtos;
 using XYZ.Billing.API.Persistence;
@@ -17,26 +16,25 @@ public sealed class PaymentService(
     IPaymentIdempotencyGuard guard,
     DatabaseContext dbContext) : IPaymentService
 {
-    public async Task<(PaymentStatus status, PaymentConfirmationDto? confirmationDto)> ProcessPaymentAsync(
-        PaymentDto paymentDto,
-        CancellationToken cancellationToken = default)
+    public async Task<(PaymentStatus status, PaymentConfirmationResponse? confirmationDto)> ProcessPaymentAsync(
+        PaymentCreationDto paymentDto)
     {
         var gateway = ResolveGateway(paymentDto.GatewayId);
 
-        var paymentStatus = await GetPaymentStatusAsync(paymentDto.OrderNumber, cancellationToken);
+        var paymentStatus = await GetPaymentStatusAsync(paymentDto.OrderNumber);
 
         if (paymentStatus == PaymentStatus.NotStarted)
         {
-            await gateway.ProcessPaymentAsync(paymentDto, cancellationToken);
+            var paymentConfirmation = await gateway.ProcessPaymentAsync(paymentDto);
             // TODO - write to db
             // TODO - remove order number from cache
-            return (PaymentStatus.Succeeded, new PaymentConfirmationDto(DateTime.UtcNow, "sample-payment-id"));
+            return (PaymentStatus.Succeeded, paymentConfirmation);
         }
 
         return (paymentStatus, null);
     }
 
-    private async Task<PaymentStatus> GetPaymentStatusAsync(string orderNumber, CancellationToken cancellationToken)
+    private async Task<PaymentStatus> GetPaymentStatusAsync(string orderNumber)
     {
         var isClaimed = await guard.TryStartPaymentAsync(
             orderNumber,
@@ -51,8 +49,7 @@ public sealed class PaymentService(
 
         // Check the db to confirm if the payment has already been processed and short circuit if it has
         var existingPayment = await dbContext.Payments.SingleOrDefaultAsync(
-            p => p.OrderNumber == orderNumber,
-            cancellationToken);
+            p => p.OrderNumber == orderNumber);
 
         if (existingPayment != null)
         {
@@ -63,9 +60,9 @@ public sealed class PaymentService(
         return PaymentStatus.NotStarted;
     }
 
-    private IPaymentGateway ResolveGateway(PaymentGatewayType gatewayType)
+    private IPaymentGateway ResolveGateway(string gatewayType)
     {
-        return serviceProvider.GetRequiredKeyedService<IPaymentGateway>(gatewayType.ToString()) 
+        return serviceProvider.GetRequiredKeyedService<IPaymentGateway>(gatewayType.ToLowerInvariant()) 
             ?? throw new InvalidOperationException($"No payment gateway found for type: {gatewayType}");
     }
 }

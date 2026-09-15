@@ -1,14 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http.Json;
 using System.Text;
 using XYZ.Billing.API.PaymentGateways.Dtos;
 
 namespace XYZ.Billing.API.PaymentGateways.Montonio;
 
-internal sealed class MontonioPaymentGateway : IPaymentGateway
+public sealed class MontonioPaymentGateway(HttpClient httpClient) : IPaymentGateway
 {
-    public async Task ProcessPaymentAsync(PaymentDto request, CancellationToken cancellationToken = default)
+    public async Task<PaymentConfirmationResponse> ProcessPaymentAsync(PaymentCreationDto request)
     {
-        throw new NotImplementedException();
+        var response = await httpClient.PostAsJsonAsync("/montonio", request);
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<PaymentConfirmationResponse>()
+            ?? throw new InvalidOperationException(
+                $"Empty response returned from Montonio payment gateway. Path: {response.RequestMessage?.RequestUri}");
     }
 }

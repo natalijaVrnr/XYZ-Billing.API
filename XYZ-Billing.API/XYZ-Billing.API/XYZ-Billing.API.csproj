@@ -6,5 +6,9 @@
 		<PackageReference Include="Carter" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
 		<PackageReference Include="Serilog.AspNetCore" />
+		<PackageReference Include="WireMock.Net" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\XYZ-Billing.API.PaymentGateways\XYZ-Billing.API.PaymentGateways.csproj" />
 	</ItemGroup>
 </Project>
