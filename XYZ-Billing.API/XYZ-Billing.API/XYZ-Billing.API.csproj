@@ -3,6 +3,7 @@
 		<RootNamespace>XYZ.Billing.API</RootNamespace>
 	</PropertyGroup>
 	<ItemGroup>
+		<PackageReference Include="Aspire.StackExchange.Redis" />
 		<PackageReference Include="Carter" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
 		<PackageReference Include="Serilog.AspNetCore" />
@@ -11,5 +12,9 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\XYZ-Billing.API.Features\XYZ-Billing.API.Features.csproj" />
 	  <ProjectReference Include="..\XYZ-Billing.API.PaymentGateways\XYZ-Billing.API.PaymentGateways.csproj" />
+	  <ProjectReference Include="..\XYZ-Billing.API.ServiceDefaults\XYZ-Billing.API.ServiceDefaults.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Properties\" />
 	</ItemGroup>
 </Project>

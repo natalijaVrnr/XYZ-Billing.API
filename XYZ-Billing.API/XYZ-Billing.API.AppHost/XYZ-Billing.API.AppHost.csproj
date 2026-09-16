@@ -9,4 +9,12 @@
     <UserSecretsId>8f17ee8f-555b-4799-9f0f-27f1b81eea2c</UserSecretsId>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Redis" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\XYZ-Billing.API\XYZ-Billing.API.csproj" />
+  </ItemGroup>
+
 </Project>

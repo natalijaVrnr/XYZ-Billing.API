@@ -6,11 +6,13 @@ using XYZ.Billing.API.PaymentGateways.Dtos;
 
 namespace XYZ.Billing.API.PaymentGateways.Stripe;
 
-public sealed class StripePaymentGateway(HttpClient httpClient) : IPaymentGateway
+public sealed class StripePaymentGateway(IHttpClientFactory factory) : IPaymentGateway
 {
-    public async Task<PaymentConfirmationResponse> ProcessPaymentAsync(PaymentCreationDto request)
+    private readonly HttpClient _httpClient = factory.CreateClient(PaymentGatewayConstants.Stripe);
+
+    public async Task<PaymentConfirmationResponse> ProcessPaymentAsync(GatewayPaymentCreationRequest request)
     {
-        var response = await httpClient.PostAsJsonAsync("/stripe", request);
+        var response = await _httpClient.PostAsJsonAsync("payment", request);
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadFromJsonAsync<PaymentConfirmationResponse>()

@@ -1,5 +1,5 @@
+using Aspire.StackExchange.Redis;
 using Carter;
-using Microsoft.AspNetCore.Hosting.Server;
 using Serilog;
 using System.Text.Json.Serialization;
 using WireMock.Server;
@@ -11,7 +11,12 @@ using XYZ.Billing.API.PaymentGateways.Montonio;
 using XYZ.Billing.API.PaymentGateways.Stripe;
 using XYZ.Billing.API.Persistence;
 
+var mockServer = WireMockServer.Start(port: 9876);
+mockServer.AddMockGateways();
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
 
 builder.Services.AddOpenApi();
 
@@ -30,7 +35,10 @@ builder.Services.AddHttpClient<MontonioPaymentGateway>(client =>
     client.BaseAddress = new Uri("http://localhost:9876/montonio");
 });
 
-builder.Services.AddCache();
+// only for local development, in production we would use a real redis instance
+builder.AddRedisClient("redis");
+
+builder.Services.AddCacheServices();
 builder.Services.AddPaymentGateways();
 builder.Services.AddDatabase();
 
@@ -73,7 +81,6 @@ app.MapCarter();
 
 app.UseCors("Frontend");
 
-app.Run();
+app.MapDefaultEndpoints();
 
-var mockServer = WireMockServer.Start(port: 9876);
-mockServer.AddMockGateways();
+app.Run();

@@ -7,5 +7,5 @@ namespace XYZ.Billing.API.PaymentGateways;
 
 public interface IPaymentGateway
 {
-    Task<PaymentConfirmationResponse> ProcessPaymentAsync(PaymentCreationDto request);
+    Task<PaymentConfirmationResponse> ProcessPaymentAsync(GatewayPaymentCreationRequest request);
 }

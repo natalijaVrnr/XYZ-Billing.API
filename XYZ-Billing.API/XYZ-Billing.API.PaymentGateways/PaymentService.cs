@@ -16,16 +16,16 @@ public sealed class PaymentService(
     IPaymentIdempotencyGuard guard,
     DatabaseContext dbContext) : IPaymentService
 {
-    public async Task<(PaymentStatus status, PaymentConfirmationResponse? confirmationDto)> ProcessPaymentAsync(
-        PaymentCreationDto paymentDto)
+    public async Task<GatewayPaymentCreationResponse> ProcessPaymentAsync(
+        GatewayPaymentCreationRequest paymentDto)
     {
         var gateway = ResolveGateway(paymentDto.GatewayId);
 
-        var paymentStatus = await GetPaymentStatusAsync(paymentDto.OrderNumber);
+        var existingPayment = await TryGetExistingPaymentAsync(paymentDto.OrderNumber);
 
-        if (paymentStatus != PaymentStatus.NotStarted)
+        if (existingPayment.Status != PaymentStatus.NotStarted)
         {
-            return (paymentStatus, null);
+            return existingPayment;
         }
 
         var paymentConfirmation = await gateway.ProcessPaymentAsync(paymentDto);
@@ -49,10 +49,12 @@ public sealed class PaymentService(
             throw new InvalidOperationException("Failed to release payment lock.");
         }
 
-        return (PaymentStatus.Succeeded, paymentConfirmation);
+        return new GatewayPaymentCreationResponse(PaymentStatus.Succeeded, paymentConfirmation);
     }
 
-    private async Task<PaymentStatus> GetPaymentStatusAsync(string orderNumber)
+    // impatiently waiting for union types in .NET 11 - would be a perfect use case here
+    // but for now using tuples to return both status and the confirmation DTO
+    private async Task<GatewayPaymentCreationResponse> TryGetExistingPaymentAsync(string orderNumber)
     {
         var isClaimed = await guard.TryStartPaymentAsync(
             orderNumber,
@@ -61,7 +63,7 @@ public sealed class PaymentService(
         if (!isClaimed)
         {
             // Payment has already been claimed by another process
-            return PaymentStatus.InProgress;
+            return new GatewayPaymentCreationResponse(PaymentStatus.InProgress, null);
 
         }
 
@@ -72,15 +74,20 @@ public sealed class PaymentService(
         if (existingPayment != null)
         {
             // Payment has already been processed
-            return PaymentStatus.Succeeded;
+            await guard.ReleasePaymentAsync(orderNumber);
+
+            return new GatewayPaymentCreationResponse(
+                PaymentStatus.Succeeded, 
+                new PaymentConfirmationResponse(DateTime.UtcNow, existingPayment.Id.ToString())
+            );
         }
 
-        return PaymentStatus.NotStarted;
+        return new GatewayPaymentCreationResponse(PaymentStatus.NotStarted, null);
     }
 
     // no need to create repo to wrap db context, which is already a unit of work, unless we plan to reuse it in multiple places,
     // but for now, we can keep it simple
-    private async Task<bool> CreatePayment(PaymentCreationDto paymentDto)
+    private async Task<bool> CreatePayment(GatewayPaymentCreationRequest paymentDto)
     {
         var payment = new Payment
         {

@@ -5,9 +5,9 @@ using System.Text;
 
 namespace XYZ.Billing.API.Cache;
 
-public class PaymentIdempotencyGuard(IConnectionMultiplexer multiplexer) : IPaymentIdempotencyGuard
+public class PaymentIdempotencyGuard(IConnectionMultiplexer redis) : IPaymentIdempotencyGuard
 {
-    private readonly IDatabase _redis = multiplexer.GetDatabase();
+    private readonly IDatabase _redis = redis.GetDatabase();
 
     // attempts to claim the order payment
     // returns true if caller now owns payment attempt

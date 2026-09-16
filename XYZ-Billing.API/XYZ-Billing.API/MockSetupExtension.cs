@@ -17,7 +17,7 @@ public static class MockSetupExtension
 
         // mocking both to always return the same successful payment response
         server
-            .Given(Request.Create().WithPath("/montonio"))
+            .Given(Request.Create().WithPath("/montonio/payment"))
             .RespondWith(
                 Response.Create()
                     .WithHeader("Content-Type", "application/json")
@@ -26,7 +26,7 @@ public static class MockSetupExtension
             );
 
         server
-            .Given(Request.Create().WithPath("/stripe"))
+            .Given(Request.Create().WithPath("/stripe/payment"))
             .RespondWith(
                 Response.Create()
                     .WithHeader("Content-Type", "application/json")

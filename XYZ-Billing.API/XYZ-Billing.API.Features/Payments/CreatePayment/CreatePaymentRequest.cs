@@ -21,7 +21,7 @@ public record CreatePaymentRequest(
     [Required]
     PaymentGatewayType GatewayId,
     string ? Description = null
-) : PaymentCreationDto(
+) : GatewayPaymentCreationRequest(
     OrderNumber,
     UserId,
     Amount,

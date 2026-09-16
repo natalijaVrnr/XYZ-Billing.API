@@ -23,7 +23,7 @@ public class CreatePaymentEndpoint : ICarterModule
                 return Results.BadRequest(new { message = $"Invalid payment gateway type: {request.GatewayId}" });
             }
 
-            var paymentDto = new PaymentCreationDto(
+            var paymentDto = new GatewayPaymentCreationRequest(
                 request.OrderNumber,
                 request.UserId,
                 request.Amount,
@@ -33,14 +33,14 @@ public class CreatePaymentEndpoint : ICarterModule
 
             var result = await paymentService.ProcessPaymentAsync(paymentDto);
 
-            return result.status switch
+            return result.Status switch
             {
-                PaymentStatus.Succeeded => result.confirmationDto is not null
+                PaymentStatus.Succeeded => result.Confirmation is not null
                     ? Results.Ok(new CreatePaymentResponse(
                         request.OrderNumber,
                         request.Amount,
-                        result.confirmationDto.Timestamp,
-                        result.confirmationDto.PaymentId))
+                        result.Confirmation.Timestamp,
+                        result.Confirmation.PaymentId))
                     : throw new InvalidOperationException(
                         $"Payment status was Succeeded but no confirmation was returned for order {request.OrderNumber}."),
 

@@ -6,11 +6,12 @@ using XYZ.Billing.API.PaymentGateways.Dtos;
 
 namespace XYZ.Billing.API.PaymentGateways.Montonio;
 
-public sealed class MontonioPaymentGateway(HttpClient httpClient) : IPaymentGateway
+public sealed class MontonioPaymentGateway(IHttpClientFactory factory) : IPaymentGateway
 {
-    public async Task<PaymentConfirmationResponse> ProcessPaymentAsync(PaymentCreationDto request)
+    private readonly HttpClient _httpClient = factory.CreateClient(PaymentGatewayConstants.Montonio);
+    public async Task<PaymentConfirmationResponse> ProcessPaymentAsync(GatewayPaymentCreationRequest request)
     {
-        var response = await httpClient.PostAsJsonAsync("/montonio", request);
+        var response = await _httpClient.PostAsJsonAsync("payment", request);
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadFromJsonAsync<PaymentConfirmationResponse>()
