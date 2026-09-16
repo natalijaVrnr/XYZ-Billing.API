@@ -8,7 +8,7 @@ namespace XYZ.Billing.API.Persistence;
 
 public static class PersistenceServiceCollectionExtension
 {
-    public static IServiceCollection AddDatabase(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddDatabase(this IServiceCollection services)
     {
         // no migrations needed for in-memory db
         services.AddDbContext<DatabaseContext>(options =>

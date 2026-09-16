@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace XYZ.Billing.API.Domain.Models;
+namespace XYZ.Billing.API.Domain.Enums;
 
 public enum PaymentStatus
 {

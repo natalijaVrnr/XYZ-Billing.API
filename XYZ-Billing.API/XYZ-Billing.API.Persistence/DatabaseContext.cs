@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using XYZ_Billing.API.Domain.Models;
+using XYZ.Billing.API.Domain.Models;
 
 namespace XYZ.Billing.API.Persistence;
 

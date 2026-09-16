@@ -6,8 +6,8 @@ using System.Text;
 using XYZ.Billing.API.Domain.Models;
 using XYZ.Billing.API.PaymentGateways.Dtos;
 using XYZ.Billing.API.Persistence;
-using XYZ_Billing.API.Cache;
-using static XYZ_Billing.API.Cache.CacheConstants.Payment;
+using XYZ.Billing.API.Cache;
+using XYZ.Billing.API.Domain.Enums;
 
 namespace XYZ.Billing.API.PaymentGateways;
 
@@ -23,15 +23,33 @@ public sealed class PaymentService(
 
         var paymentStatus = await GetPaymentStatusAsync(paymentDto.OrderNumber);
 
-        if (paymentStatus == PaymentStatus.NotStarted)
+        if (paymentStatus != PaymentStatus.NotStarted)
         {
-            var paymentConfirmation = await gateway.ProcessPaymentAsync(paymentDto);
-            // TODO - write to db
-            // TODO - remove order number from cache
-            return (PaymentStatus.Succeeded, paymentConfirmation);
+            return (paymentStatus, null);
         }
 
-        return (paymentStatus, null);
+        var paymentConfirmation = await gateway.ProcessPaymentAsync(paymentDto);
+
+        var isCreated = await CreatePayment(paymentDto);
+
+        if (!isCreated)
+        {
+            // TODO - Create custom exception class
+            // TODO - How do we handle it here? Payment has been processed, but we failed to create a record in db
+            // We would need to retry this multiple times, if we dont succeed, alert the user with error message
+            // alert event will be sent to handle this, in the meantime if DB is down return 503 for subsequent requests?
+            throw new InvalidOperationException("Failed to create payment record in the database.");
+        }
+
+        var isReleased = await guard.ReleasePaymentAsync(paymentDto.OrderNumber);
+
+        if (!isReleased)
+        {
+            // TODO - Create custom exception class
+            throw new InvalidOperationException("Failed to release payment lock.");
+        }
+
+        return (PaymentStatus.Succeeded, paymentConfirmation);
     }
 
     private async Task<PaymentStatus> GetPaymentStatusAsync(string orderNumber)
@@ -60,9 +78,29 @@ public sealed class PaymentService(
         return PaymentStatus.NotStarted;
     }
 
-    private IPaymentGateway ResolveGateway(string gatewayType)
+    // no need to create repo to wrap db context, which is already a unit of work, unless we plan to reuse it in multiple places,
+    // but for now, we can keep it simple
+    private async Task<bool> CreatePayment(PaymentCreationDto paymentDto)
     {
-        return serviceProvider.GetRequiredKeyedService<IPaymentGateway>(gatewayType.ToLowerInvariant()) 
+        var payment = new Payment
+        {
+            Id = Guid.NewGuid(),
+            OrderNumber = paymentDto.OrderNumber,
+            UserId = paymentDto.UserId,
+            Amount = paymentDto.Amount,
+            Currency = paymentDto.Currency,
+            GatewayId = paymentDto.GatewayId,
+            Description = paymentDto.Description
+        };
+
+        dbContext.Payments.Add(payment);
+        var result = await dbContext.SaveChangesAsync();
+        return result > 0;
+    }
+
+    private IPaymentGateway ResolveGateway(PaymentGatewayType gatewayType)
+    {
+        return serviceProvider.GetRequiredKeyedService<IPaymentGateway>(gatewayType) 
             ?? throw new InvalidOperationException($"No payment gateway found for type: {gatewayType}");
     }
 }

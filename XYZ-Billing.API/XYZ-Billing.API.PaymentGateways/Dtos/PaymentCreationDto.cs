@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using XYZ.Billing.API.Domain.Enums;
 
 namespace XYZ.Billing.API.PaymentGateways.Dtos;
 
@@ -10,6 +11,6 @@ public record PaymentCreationDto(
     string UserId,
     decimal Amount,
     string Currency,
-    string GatewayId,
+    PaymentGatewayType GatewayId,
     string? Description = null
 );

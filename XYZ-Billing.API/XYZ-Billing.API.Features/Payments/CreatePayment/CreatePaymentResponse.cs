@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace XYZ.Billing.API.Features.Payments.ProcessPayment;
+namespace XYZ.Billing.API.Features.Payments.CreatePayment;
 
-internal record ProcessPaymentResponse(
+internal record CreatePaymentResponse(
     string OrderNumber,
     decimal Amount,
     DateTime Timestamp,

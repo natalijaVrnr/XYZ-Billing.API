@@ -2,8 +2,9 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using System.Text;
-using XYZ_Billing.API.Domain.Models;
+using XYZ.Billing.API.Domain.Models;
 
 namespace XYZ.Billing.API.Persistence.Configurations;
 
@@ -39,7 +40,10 @@ internal class PaymentsConfiguration : IEntityTypeConfiguration<Payment>
             .HasMaxLength(300)
             .IsRequired(false);
 
-        builder.Property(x => x.CreatedOn)
+        builder.Property(x => x.Status)
+            .HasConversion<string>();
+
+        builder.Property<DateTime>("CreatedOn")
             .HasDefaultValueSql("GETUTCDATE()")
             .ValueGeneratedOnAdd();
     }

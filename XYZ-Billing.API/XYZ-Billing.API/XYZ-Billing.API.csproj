@@ -9,6 +9,7 @@
 		<PackageReference Include="WireMock.Net" />
 	</ItemGroup>
 	<ItemGroup>
+	  <ProjectReference Include="..\XYZ-Billing.API.Features\XYZ-Billing.API.Features.csproj" />
 	  <ProjectReference Include="..\XYZ-Billing.API.PaymentGateways\XYZ-Billing.API.PaymentGateways.csproj" />
 	</ItemGroup>
 </Project>

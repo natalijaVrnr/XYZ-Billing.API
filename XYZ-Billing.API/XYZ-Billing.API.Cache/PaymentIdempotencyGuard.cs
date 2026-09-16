@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace XYZ_Billing.API.Cache;
+namespace XYZ.Billing.API.Cache;
 
 public class PaymentIdempotencyGuard(IConnectionMultiplexer multiplexer) : IPaymentIdempotencyGuard
 {
@@ -31,5 +31,14 @@ public class PaymentIdempotencyGuard(IConnectionMultiplexer multiplexer) : IPaym
         var existing = await _redis.StringGetAsync(key);
 
         return existing.IsNullOrEmpty;
+    }
+
+    // remove key after order has been processed - now we have it in db
+    public async Task<bool> ReleasePaymentAsync(string orderId)
+    {
+        var key = CacheConstants.Payment.Key(orderId);
+        var deleted = await _redis.KeyDeleteAsync(key);
+
+        return deleted;
     }
 }

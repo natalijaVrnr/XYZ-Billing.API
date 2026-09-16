@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using XYZ.Billing.API.Domain.Enums;
+using XYZ.Billing.API.PaymentGateways;
 using XYZ.Billing.API.PaymentGateways.Dtos;
 
-namespace XYZ.Billing.API.Features.Payments.ProcessPayment;
+namespace XYZ.Billing.API.Features.Payments.CreatePayment;
 
-public record ProcessPaymentRequest(
+public record CreatePaymentRequest(
     [Required]
     string OrderNumber,
     [Required]
@@ -17,7 +19,7 @@ public record ProcessPaymentRequest(
     [Required]
     string Currency,
     [Required]
-    string GatewayId,
+    PaymentGatewayType GatewayId,
     string ? Description = null
 ) : PaymentCreationDto(
     OrderNumber,
