@@ -53,7 +53,7 @@ public sealed class PaymentService(
     }
 
     // impatiently waiting for union types in .NET 11 - would be a perfect use case here
-    // but for now using tuples to return both status and the confirmation DTO
+    // we could return status only for all payments except succeeded ones, and confirmation dto for succeeded ones
     private async Task<GatewayPaymentCreationResponse> TryGetExistingPaymentAsync(string orderNumber)
     {
         var isClaimed = await guard.TryStartPaymentAsync(

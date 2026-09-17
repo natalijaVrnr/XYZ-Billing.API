@@ -13,7 +13,7 @@ internal class GlobalExceptionHandler(ILogger logger) : IExceptionHandler
         logger.Error(exception, "An error occurred while processing the request.");
 
         // TODO - map to response and status code based on exception type
-        // TODO - create custom HttpResponse exception model
+        // TODO - map to ProblemDetails
         httpContext.Response.StatusCode = 500;
         httpContext.Response.ContentType = "application/json";
 
