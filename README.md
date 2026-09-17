@@ -117,7 +117,7 @@ The gateway clients are mocked using WireMock library.
 Before launching the project please make sure you have the following ports available: 7229, 5202, 9876.
 
 This service is orchestrated via .NET Aspire, which spins up the API
-alongside its Redis cache.
+alongside its Redis cache. The following command has to be executed from the solution folder:
 
 ```bash
 dotnet run --project XYZ-Billing.API.AppHost
