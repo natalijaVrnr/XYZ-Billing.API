@@ -4,12 +4,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 using XYZ.Billing.API.Domain.Enums;
 using XYZ.Billing.API.PaymentGateways;
 using XYZ.Billing.API.PaymentGateways.Dtos;
 
-namespace XYZ.Billing.API.Features.Payments.CreatePayment;
+namespace XYZ.Billing.API.Endpoints.Payments.CreatePayment;
 
 public class CreatePaymentEndpoint : ICarterModule
 {
@@ -20,7 +21,7 @@ public class CreatePaymentEndpoint : ICarterModule
         {
             if (!Enum.TryParse<PaymentGatewayType>(request.GatewayId.ToString(), ignoreCase: true, out var resolvedGatewayType))
             {
-                return Results.BadRequest(new { message = $"Invalid payment gateway type: {request.GatewayId}" });
+                return Results.BadRequest(new { Message = $"Invalid payment gateway type: {request.GatewayId}" });
             }
 
             var paymentDto = new GatewayPaymentCreationRequest(

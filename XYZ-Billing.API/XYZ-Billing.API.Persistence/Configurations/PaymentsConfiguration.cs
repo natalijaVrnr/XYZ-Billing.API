@@ -43,7 +43,7 @@ internal class PaymentsConfiguration : IEntityTypeConfiguration<Payment>
         builder.Property(x => x.Status)
             .HasConversion<string>();
 
-        builder.Property<DateTime>("CreatedOn")
+        builder.Property(x => x.CreatedOn)
             .HasDefaultValueSql("GETUTCDATE()")
             .ValueGeneratedOnAdd();
     }

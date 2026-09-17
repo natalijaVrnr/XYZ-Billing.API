@@ -68,8 +68,9 @@ public sealed class PaymentService(
         }
 
         // Check the db to confirm if the payment has already been processed and short circuit if it has
-        var existingPayment = await dbContext.Payments.SingleOrDefaultAsync(
-            p => p.OrderNumber == orderNumber);
+        var existingPayment = await dbContext.Payments
+            .AsNoTracking()
+            .SingleOrDefaultAsync(p => p.OrderNumber == orderNumber);
 
         if (existingPayment != null)
         {
@@ -78,7 +79,7 @@ public sealed class PaymentService(
 
             return new GatewayPaymentCreationResponse(
                 PaymentStatus.Succeeded, 
-                new PaymentConfirmationResponse(DateTime.UtcNow, existingPayment.Id.ToString())
+                new PaymentConfirmationResponse(existingPayment.CreatedOn, existingPayment.Id.ToString())
             );
         }
 
@@ -86,7 +87,7 @@ public sealed class PaymentService(
     }
 
     // no need to create repo to wrap db context, which is already a unit of work, unless we plan to reuse it in multiple places,
-    // but for now, we can keep it simple
+    // for now, we can keep it simple
     private async Task<bool> CreatePayment(GatewayPaymentCreationRequest paymentDto)
     {
         var payment = new Payment

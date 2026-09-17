@@ -16,4 +16,5 @@ public class Payment
     public PaymentGatewayType GatewayId { get; set; }
     public string? Description { get; set; }
     public PaymentStatus Status { get; set; } = PaymentStatus.InProgress;
+    public DateTime CreatedOn { get; set; }
 }

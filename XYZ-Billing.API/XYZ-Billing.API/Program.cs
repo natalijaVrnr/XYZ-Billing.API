@@ -79,7 +79,7 @@ app.UseHttpsRedirection();
 
 app.MapCarter();
 
-app.UseCors("Frontend");
+app.UseCors("XYZ-App");
 
 app.MapDefaultEndpoints();
 

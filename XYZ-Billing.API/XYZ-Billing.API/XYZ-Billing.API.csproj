@@ -2,6 +2,9 @@
 	<PropertyGroup>
 		<RootNamespace>XYZ.Billing.API</RootNamespace>
 	</PropertyGroup>
+	<PropertyGroup>
+		<InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.Http.Validation.Generated</InterceptorsNamespaces>
+	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Aspire.StackExchange.Redis" />
 		<PackageReference Include="Carter" />
@@ -10,7 +13,6 @@
 		<PackageReference Include="WireMock.Net" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\XYZ-Billing.API.Features\XYZ-Billing.API.Features.csproj" />
 	  <ProjectReference Include="..\XYZ-Billing.API.PaymentGateways\XYZ-Billing.API.PaymentGateways.csproj" />
 	  <ProjectReference Include="..\XYZ-Billing.API.ServiceDefaults\XYZ-Billing.API.ServiceDefaults.csproj" />
 	</ItemGroup>
