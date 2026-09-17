@@ -87,7 +87,8 @@ Content-Type: application/json
 
 ```json
 {
-  "message": "Payment already in progress for this order"
+    "statusCode": 409,
+    "message": "Payment already in progress for this order"
 }
 ```
 
@@ -95,8 +96,8 @@ Content-Type: application/json
 
 ```json
 {
-  "title": "The gateway failed to process payment",
-  "status": 502
+    "statusCode": 502,
+    "message": "The gateway failed to process payment"
 }
 ```
 
@@ -104,7 +105,8 @@ Content-Type: application/json
 
 ```json
 {
-  "Message": "Invalid payment gateway type: 3"
+    "statusCode": 400,
+    "message": "Invalid payment gateway type: Paypal"
 }
 ```
 

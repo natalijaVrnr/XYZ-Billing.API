@@ -19,9 +19,13 @@ public class CreatePaymentEndpoint : ICarterModule
         // no cancellation token here - we dont want to cancel payment midway through if the client disconnects
         app.MapPost("/api/payments", async (CreatePaymentRequest request, IPaymentService paymentService) =>
         {
-            if (!Enum.TryParse<PaymentGatewayType>(request.GatewayId.ToString(), ignoreCase: true, out var resolvedGatewayType))
+            if (!Enum.TryParse<PaymentGatewayType>(request.GatewayId, ignoreCase: true, out var resolvedGatewayType))
             {
-                return Results.BadRequest(new { Message = $"Invalid payment gateway type: {request.GatewayId}" });
+                return Results.BadRequest(
+                    new ApiResponse(
+                        StatusCodes.Status400BadRequest, 
+                        $"Invalid payment gateway type: {request.GatewayId}"
+                ));
             }
 
             var paymentDto = new GatewayPaymentCreationRequest(
@@ -42,13 +46,21 @@ public class CreatePaymentEndpoint : ICarterModule
                         request.Amount,
                         result.Confirmation.Timestamp,
                         result.Confirmation.PaymentId))
-                    : Results.Problem(
-                        "Payment gateway returned an invalid successful payment response.",
+                    : Results.Json(
+                        new ApiResponse(StatusCodes.Status502BadGateway, "Payment gateway returned an invalid successful payment response."),
                         statusCode: StatusCodes.Status502BadGateway),
 
-                PaymentStatus.InProgress => Results.Conflict(new { message = "Payment already in progress for this order" }),
-                PaymentStatus.Failed => Results.Problem("The gateway failed to process payment", statusCode: StatusCodes.Status502BadGateway),
-                _ => Results.Problem("Unexpected payment status", statusCode: StatusCodes.Status500InternalServerError)
+                PaymentStatus.InProgress => Results.Json(
+                    new ApiResponse(StatusCodes.Status409Conflict, "Payment already in progress for this order"),
+                    statusCode: StatusCodes.Status409Conflict),
+
+                PaymentStatus.Failed => Results.Json(
+                    new ApiResponse(StatusCodes.Status502BadGateway, "The gateway failed to process payment"),
+                    statusCode: StatusCodes.Status502BadGateway),
+
+                _ => Results.Json(
+                    new ApiResponse(StatusCodes.Status500InternalServerError, "An unexpected error occured"),
+                    statusCode: StatusCodes.Status500InternalServerError)
             };
         });
     }

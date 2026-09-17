@@ -23,6 +23,6 @@ public class CreatePaymentRequest
     public string Currency { get; set; }
 
     [Required]
-    public PaymentGatewayType GatewayId { get; set; }
+    public string GatewayId { get; set; }
     public string? Description { get; set; }
 }
