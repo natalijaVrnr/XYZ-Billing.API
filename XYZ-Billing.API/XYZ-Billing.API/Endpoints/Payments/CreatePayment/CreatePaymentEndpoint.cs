@@ -42,12 +42,13 @@ public class CreatePaymentEndpoint : ICarterModule
                         request.Amount,
                         result.Confirmation.Timestamp,
                         result.Confirmation.PaymentId))
-                    : throw new InvalidOperationException(
-                        $"Payment status was Succeeded but no confirmation was returned for order {request.OrderNumber}."),
+                    : Results.Problem(
+                        "Payment gateway returned an invalid successful payment response.",
+                        statusCode: StatusCodes.Status502BadGateway),
 
                 PaymentStatus.InProgress => Results.Conflict(new { message = "Payment already in progress for this order" }),
-                PaymentStatus.Failed => Results.Problem("The gateway failed to process payment", statusCode: 502),
-                _ => Results.Problem("Unexpected payment status", statusCode: 500)
+                PaymentStatus.Failed => Results.Problem("The gateway failed to process payment", statusCode: StatusCodes.Status502BadGateway),
+                _ => Results.Problem("Unexpected payment status", statusCode: StatusCodes.Status500InternalServerError)
             };
         });
     }
