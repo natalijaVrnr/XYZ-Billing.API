@@ -9,9 +9,9 @@ progress or has already succeeded, it will not trigger a second charge at the
 gateway. It returns:
 
 - **200 OK** — payment succeeded, with the gateway's payment ID and timestamp.
+- **400 Bad Request** — the request validation has failed.
 - **409 Conflict** — a payment for this order is already in progress.
 - **502 Bad Gateway** — the gateway rejected or failed to process the payment.
-- **400 Bad Request** — the requested `GatewayId` is not a supported gateway.
 - **500 Internal Server Error** — an unexpected payment status was returned
   (defensive fallback; should not occur in practice).
 
@@ -110,19 +110,27 @@ Content-Type: application/json
 
 ## Running locally (Aspire)
 
+This service is currently setup with in-memory database.
+
+The gateway clients are mocked using WireMock library.
+
+Before launching the project please make sure you have the following ports available: 7229, 5202, 9876.
+
 This service is orchestrated via .NET Aspire, which spins up the API
-alongside its Redis cache and database dependencies.
+alongside its Redis cache.
 
 ```bash
-dotnet run --project ./src/AppHost
+dotnet run --project XYZ-Billing.API.AppHost
 ```
 
-Once the Aspire dashboard is up, the API endpoint will be available (by
-default) at:
+The dashboard URL will be displayed in terminal window once the build finishes, e.g.:
 
 ```
-POST https://localhost:<port>/api/payments
+https://localhost:17096/login?t=506ce90c60b7962cbfec97f721606cce
 ```
 
-Check the Aspire dashboard console output / launch URL for the exact
-port assigned to the API and Redis/DB resources in your environment.
+Once the Aspire dashboard is up, the API endpoint will be available at:
+
+```
+POST https://localhost:5202/api/payments
+```
