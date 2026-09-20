@@ -31,7 +31,6 @@ client disconnects, rather than leaving the payment state ambiguous.
    cannot be delegated to the gateway layer alone.
 5. The API is expected to scale out horizontally, so idempotency/state
    tracking must work across multiple instances (not just in-process).
-6. Target p99 latency for this endpoint is **5 seconds**.
 
 ## Decisions
 
