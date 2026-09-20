@@ -3,6 +3,7 @@ using Carter;
 using Serilog;
 using System.Text.Json.Serialization;
 using WireMock.Server;
+using WireMock.Settings;
 using XYZ.Billing.API;
 using XYZ.Billing.API.Cache;
 using XYZ.Billing.API.Middlewares;
@@ -11,7 +12,11 @@ using XYZ.Billing.API.PaymentGateways.Montonio;
 using XYZ.Billing.API.PaymentGateways.Stripe;
 using XYZ.Billing.API.Persistence;
 
-var mockServer = WireMockServer.Start(port: 9876);
+var mockServer = WireMockServer.Start(new WireMockServerSettings
+{
+    Port = 9876,
+    StartAdminInterface = true
+});
 mockServer.AddMockGateways();
 
 var builder = WebApplication.CreateBuilder(args);
