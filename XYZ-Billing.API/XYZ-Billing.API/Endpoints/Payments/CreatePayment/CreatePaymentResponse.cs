@@ -8,5 +8,5 @@ internal record CreatePaymentResponse(
     string OrderNumber,
     decimal Amount,
     DateTime Timestamp,
-    string PaymentId
+    Guid PaymentId
 );

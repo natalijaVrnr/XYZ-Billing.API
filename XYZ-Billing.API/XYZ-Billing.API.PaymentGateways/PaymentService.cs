@@ -30,7 +30,7 @@ public sealed class PaymentService(
 
         var paymentConfirmation = await gateway.ProcessPaymentAsync(paymentDto);
 
-        var isCreated = await CreatePayment(paymentDto);
+        var isCreated = await CreatePayment(paymentConfirmation.PaymentId, paymentDto);
 
         if (!isCreated)
         {
@@ -79,7 +79,7 @@ public sealed class PaymentService(
 
             return new GatewayPaymentCreationResponse(
                 PaymentStatus.Succeeded, 
-                new PaymentConfirmationResponse(existingPayment.CreatedOn, existingPayment.Id.ToString())
+                new PaymentConfirmationResponse(existingPayment.CreatedOn, existingPayment.Id)
             );
         }
 
@@ -88,11 +88,11 @@ public sealed class PaymentService(
 
     // no need to create repo to wrap db context, which is already a unit of work, unless we plan to reuse it in multiple places,
     // for now, we can keep it simple
-    private async Task<bool> CreatePayment(GatewayPaymentCreationRequest paymentDto)
+    private async Task<bool> CreatePayment(Guid paymentId, GatewayPaymentCreationRequest paymentDto)
     {
         var payment = new Payment
         {
-            Id = Guid.NewGuid(),
+            Id = paymentId,
             OrderNumber = paymentDto.OrderNumber,
             UserId = paymentDto.UserId,
             Amount = paymentDto.Amount,

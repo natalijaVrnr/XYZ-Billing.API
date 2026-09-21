@@ -6,5 +6,5 @@ namespace XYZ.Billing.API.PaymentGateways.Dtos;
 
 public record PaymentConfirmationResponse(
     DateTime Timestamp,
-    string PaymentId
+    Guid PaymentId
 );
